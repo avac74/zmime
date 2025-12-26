@@ -1,0 +1,11 @@
+.{
+    .name = .zmime,
+    .version = "0.0.1",
+    .fingerprint = 0x1681503f81bbc732, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.15.2",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
