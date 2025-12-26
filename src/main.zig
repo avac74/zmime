@@ -1,10 +1,6 @@
 const std = @import("std");
 const zmime = @import("zmime");
 
-const CliError = error{
-    MissingFileName,
-};
-
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
@@ -15,8 +11,8 @@ pub fn main() !void {
     defer std.process.argsFree(allocator, args);
 
     if (args.len != 2) {
-        std.log.err("usage: zmime <file name>", .{});
-        return CliError.MissingFileName;
+        std.debug.print("usage: zmime <file name>\n", .{});
+        std.process.exit(1);
     }
 
     const file_name = args[1];
