@@ -84,3 +84,20 @@ pub fn main() !void {
     std.debug.print("Detected: {s}\n", .{@tagName(ft)});
 }
 ```
+
+# 🗺️ Roadmap
+
+This project aims to provide a fast, reliable, and extensible file‑type detection system built entirely in Zig.
+Below is the current roadmap, including completed features and planned enhancements.
+
+|    |                                         |
+|----|-----------------------------------------|
+| ✅ | Magic-number detection                  |
+| ✅ | Text vs binary heuristic                |
+| ❌ | File extension fallback                 |
+| ❌ | Secondary lightweight analysis          |
+| ❌ | MIME type mapping                       |
+| ❌ | Encoding detection (UTF-8, UTF-16, etc) |
+| ❌ | Source code detection                   |
+| ❌ | Benchmark suite                         |
+| ❌ | Fuzz testing                            |
