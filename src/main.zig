@@ -14,5 +14,5 @@ pub fn main() !void {
     const file_name: [:0]const u8 = std.mem.span(std.os.argv[1]);
 
     const result = try zmime.detectFileType(file_name);
-    std.log.info("File type is {}", .{result});
+    std.log.info("File type is {s}", .{@tagName(result)});
 }
