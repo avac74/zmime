@@ -1,4 +1,11 @@
-![CI](https://github.com/avac74/zmime/actions/workflows/ci.yml/badge.svg)
+# 🛠️ Build Status
+
+| OS      | Status                                                                                  |
+|---------|-----------------------------------------------------------------------------------------|
+| Linux   | ![Linux](https://github.com/<user>/<repo>/actions/workflows/ci-linux.yml/badge.svg)     |
+| macOS   | ![macOS](https://github.com/<user>/<repo>/actions/workflows/ci-macos.yml/badge.svg)     |
+| Windows | ![Windows](https://github.com/<user>/<repo>/actions/workflows/ci-windows.yml/badge.svg) |
+
 
 # 📦 Zig FileType Detector
 
