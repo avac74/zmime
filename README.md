@@ -1,3 +1,5 @@
+![CI](https://github.com/avac74/zmime/actions/workflows/ci.yml/badge.svg)
+
 # 📦 Zig FileType Detector
 
 A  dependency‑free file type detection library written in Zig.
