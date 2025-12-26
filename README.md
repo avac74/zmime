@@ -3,9 +3,8 @@
 | OS      | Status                                                                                  |
 |---------|-----------------------------------------------------------------------------------------|
 | Linux   | ![Linux](https://github.com/avac74/zmime/actions/workflows/ci-linux.yaml/badge.svg)     |
-| macOS   | ![macOS](https://github.com/avac74/zmime/actions/workflows/ci-macos.yaml/badge.svg)     |
+| macOS   | ![macOS](https://github.com/avac74/zmime/actions/workflows/ci-mac.yaml/badge.svg)       |
 | Windows | ![Windows](https://github.com/avac74/zmime/actions/workflows/ci-windows.yaml/badge.svg) |
-
 
 # 📦 Zig FileType Detector
 
