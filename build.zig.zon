@@ -1,11 +1,23 @@
 .{
     .name = .zmime,
-    .version = "0.0.1",
+    .version = "0.1.0",
     .fingerprint = 0x1681503f81bbc732, // Changing this has security and trust implications.
     .minimum_zig_version = "0.15.2",
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "src",
+        "README.md",
+    },
+    .description = "Magic-number based file type detection library for Zig",
+    .license = "MIT",
+    .homepage = "https://github.com/avac74/zmime",
+    .keywords = .{
+        "zig",
+        "zig-package",
+        "file-handling",
+        "ziglang",
+        "zig-library",
+        "magic-numbers",
     },
 }
