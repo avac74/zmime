@@ -85,10 +85,10 @@ This produces a `zmime` executable in `zig-out/bin`.
 Import the module in your Zig project:
 
 ```zig
-const filetype = @import("filetype.zig");
+const zmime = @import("zmime.zig");
 
 pub fn main() !void {
-    const info = try zmime.detectFileInfo(file_name);
+    const info = try zmime.detectFileInfo("example.pdf");
     std.log.info("File type: {s}, MIME: {s}", .{
         @tagName(info.file_type),
         zmime.mimeToString(info.mime),
