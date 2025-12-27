@@ -113,9 +113,9 @@ const magic_table = [_]Magic{
 };
 
 ///
-/// Return the `FileType` of a file named `path`
+/// Return the `FileInfo` of a file named `path`
 ///
-pub fn detectFileType(path: []const u8) !FileInfo {
+pub fn detectFileInfo(path: []const u8) !FileInfo {
     var file = try std.fs.cwd().openFile(path, .{});
     defer file.close();
 
@@ -123,10 +123,10 @@ pub fn detectFileType(path: []const u8) !FileInfo {
 
     const n = try file.read(&buffer);
 
-    if (detectMagic(buffer[0..n])) |ft| {
+    if (detectMagic(buffer[0..n])) |m| {
         return .{
-            .file_type = ft.file_type,
-            .mime = ft.mime,
+            .file_type = m.file_type,
+            .mime = m.mime,
         };
     }
 
@@ -176,7 +176,7 @@ pub fn mimeToString(m: MimeType) []const u8 {
 }
 
 ///
-/// Return `FileType` if `buf` contains magic numbers stored in `magic_table` and `null` otherwise.
+/// Return `Magic` if `buf` contains magic numbers stored in `magic_table` and `null` otherwise.
 ///
 fn detectMagic(buf: []const u8) ?Magic {
     inline for (magic_table) |m| {
@@ -239,7 +239,7 @@ test "detectFileType detects PNG from in-memory file" {
     const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "test.png");
     defer std.testing.allocator.free(full_path);
 
-    const info = try detectFileType(full_path);
+    const info = try detectFileInfo(full_path);
 
     try std.testing.expectEqual(.image, info.file_type);
     try std.testing.expectEqual(.image_png, info.mime);
@@ -257,7 +257,7 @@ test "detectFileType detects text file" {
     const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "hello.txt");
     defer std.testing.allocator.free(full_path);
 
-    const info = try detectFileType(full_path);
+    const info = try detectFileInfo(full_path);
 
     try std.testing.expectEqual(.text, info.file_type);
     try std.testing.expectEqual(.text_plain, info.mime);
