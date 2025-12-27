@@ -82,7 +82,24 @@ This produces a `zmime` executable in `zig-out/bin`.
 
 # 🧩 Library Usage
 
-Import the module in your Zig project:
+## 📦 Installing with Zig Package Manager
+
+You can add **zmime** to your project using `zig fetch`:
+
+```sh
+zig fetch --save git+https://github.com/avac74/zmime
+```
+
+## Import the module in build.zig
+
+Inside your `build` function:
+
+```zig
+const zmime = b.dependency("zmime", .{}).module("zmime");
+exe.addModule("zmime", zmime);
+```
+
+## Use it in your code
 
 ```zig
 const zmime = @import("zmime.zig");

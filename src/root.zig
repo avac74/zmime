@@ -2,7 +2,7 @@ const std = @import("std");
 
 const BUFFER_SIZE: usize = 4096;
 
-const FileType = enum {
+pub const FileType = enum {
     text,
     image,
     audio,
