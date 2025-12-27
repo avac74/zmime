@@ -23,6 +23,21 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(exe);
 
+    const exe_check = b.addExecutable(.{
+        .name = "zmime",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "zmime", .module = mod },
+            },
+        }),
+    });
+
+    const check = b.step("check", "Check if zmime compiles");
+    check.dependOn(&exe_check.step);
+
     const run_step = b.step("run", "Run the zmime CLI");
 
     const run_cmd = b.addRunArtifact(exe);
