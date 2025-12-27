@@ -27,23 +27,6 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(exe);
 
-    // ========================= Check step =========================
-
-    const exe_check = b.addExecutable(.{
-        .name = "zmime",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/main.zig"),
-            .target = target,
-            .optimize = optimize,
-            .imports = &.{
-                .{ .name = "zmime", .module = mod },
-            },
-        }),
-    });
-
-    const check = b.step("check", "Check if zmime compiles");
-    check.dependOn(&exe_check.step);
-
     // ========================= Run step =========================
 
     const run_step = b.step("run", "Run the zmime CLI");
@@ -67,4 +50,32 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_mod_tests.step);
+
+    // ========================= Format step =========================
+
+    const fmt = b.addFmt(.{
+        .paths = &.{ "src", "build.zig", "build.zig.zon" },
+    });
+
+    const fmt_check = b.step("fmt-check", "Check formatting");
+    fmt_check.dependOn(&fmt.step);
+
+    // ========================= Check step =========================
+
+    const exe_check = b.addExecutable(.{
+        .name = "zmime",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "zmime", .module = mod },
+            },
+        }),
+    });
+
+    const check = b.step("check", "Check if zmime compiles");
+    check.dependOn(&exe_check.step);
+    check.dependOn(test_step);
+    check.dependOn(&fmt.step);
 }
