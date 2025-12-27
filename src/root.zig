@@ -127,3 +127,57 @@ fn isText(buf: []const u8) bool {
 
     return true;
 }
+
+// Unit tests
+
+test "detectMagic detects known signatures" {
+    const buf = "\x89PNG\r\n\x1a\n";
+    try std.testing.expectEqual(.image, detectMagic(buf));
+}
+
+test "detectMagic returns null for unknown signatures" {
+    const buf = "not-a-real-file";
+    try std.testing.expectEqual(@as(?FileType, null), detectMagic(buf));
+}
+
+test "isText detects ASCII text" {
+    const buf = "Hello, world!";
+    try std.testing.expect(isText(buf));
+}
+
+test "isText rejects binary data" {
+    const buf = [_]u8{ 0, 1, 2, 3 };
+    try std.testing.expect(!isText(&buf));
+}
+
+test "detectFileType detects PNG from in-memory file" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const path = try tmp.dir.createFile("test.png", .{});
+    defer path.close();
+
+    try path.writeAll("\x89PNG\r\n\x1a\n");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "test.png");
+    defer std.testing.allocator.free(full_path);
+
+    const ft = try detectFileType(full_path);
+    try std.testing.expectEqual(.image, ft);
+}
+
+test "detectFileType detects text file" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const path = try tmp.dir.createFile("hello.txt", .{});
+    defer path.close();
+
+    try path.writeAll("Hello!");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "hello.txt");
+    defer std.testing.allocator.free(full_path);
+
+    const ft = try detectFileType(full_path);
+    try std.testing.expectEqual(.text, ft);
+}

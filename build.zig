@@ -4,10 +4,14 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // ========================= the library itself =========================
+
     const mod = b.addModule("zmime", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
     });
+
+    // ========================= an executable to test the library =========================
 
     const exe = b.addExecutable(.{
         .name = "zmime",
@@ -22,6 +26,8 @@ pub fn build(b: *std.Build) void {
     });
 
     b.installArtifact(exe);
+
+    // ========================= Check step =========================
 
     const exe_check = b.addExecutable(.{
         .name = "zmime",
@@ -38,6 +44,8 @@ pub fn build(b: *std.Build) void {
     const check = b.step("check", "Check if zmime compiles");
     check.dependOn(&exe_check.step);
 
+    // ========================= Run step =========================
+
     const run_step = b.step("run", "Run the zmime CLI");
 
     const run_cmd = b.addRunArtifact(exe);
@@ -48,4 +56,15 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| {
         run_cmd.addArgs(args);
     }
+
+    // ========================= Test step =========================
+
+    const mod_tests = b.addTest(.{
+        .root_module = mod,
+    });
+
+    const run_mod_tests = b.addRunArtifact(mod_tests);
+
+    const test_step = b.step("test", "Run tests");
+    test_step.dependOn(&run_mod_tests.step);
 }
