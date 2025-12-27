@@ -17,6 +17,9 @@ pub fn main() !void {
 
     const file_name = args[1];
 
-    const result = try zmime.detectFileType(file_name);
-    std.log.info("File type is {s}", .{@tagName(result)});
+    const info = try zmime.detectFileType(file_name);
+    std.log.info("File type: {s}, MIME: {s}", .{
+        @tagName(info.file_type),
+        zmime.mimeToString(info.mime),
+    });
 }
