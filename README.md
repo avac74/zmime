@@ -88,8 +88,11 @@ Import the module in your Zig project:
 const filetype = @import("filetype.zig");
 
 pub fn main() !void {
-    const ft = try filetype.detectFileType("example.pdf");
-    std.debug.print("Detected: {s}\n", .{@tagName(ft)});
+    const info = try zmime.detectFileInfo(file_name);
+    std.log.info("File type: {s}, MIME: {s}", .{
+        @tagName(info.file_type),
+        zmime.mimeToString(info.mime),
+    });
 }
 ```
 
