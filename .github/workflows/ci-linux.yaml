@@ -19,5 +19,5 @@ jobs:
         with:
           version: master
 
-      - name: Build
-        run: zig build
+      - name: Check
+        run: zig build check
