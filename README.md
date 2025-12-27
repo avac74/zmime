@@ -104,7 +104,7 @@ Below is the current roadmap, including completed features and planned enhanceme
 | ✅ | Text vs binary heuristic                |
 | ❌ | File extension fallback                 |
 | ❌ | Secondary lightweight analysis          |
-| ❌ | MIME type mapping                       |
+| ✅ | MIME type mapping                       |
 | ❌ | Encoding detection (UTF-8, UTF-16, etc) |
 | ❌ | Source code detection                   |
 | ❌ | Benchmark suite                         |
