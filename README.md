@@ -9,6 +9,12 @@
 ## Latest release
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/avac74/zmime)
 
+# ⚠️ Disclaimer
+
+This library is currently alpha‑quality. The API may evolve, internal structures may change, and edge cases are still being explored. The primary purpose of this project is for me to learn Zig by building something real, and to grow it into a reliable, well‑designed file‑type detection library over time.
+
+If you’re interested in extending the magic table, improving the detection logic, refining the API, or helping clean up the codebase, contributions are very welcome. Suggestions, issues, and pull requests that help improve correctness, clarity, or idiomatic Zig usage are especially appreciated.
+
 # 📦 Zig FileType Detector
 
 A  dependency‑free file type detection library written in Zig.
