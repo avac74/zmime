@@ -6,6 +6,9 @@
 | macOS   | ![macOS](https://github.com/avac74/zmime/actions/workflows/ci-mac.yaml/badge.svg)       |
 | Windows | ![Windows](https://github.com/avac74/zmime/actions/workflows/ci-windows.yaml/badge.svg) |
 
+## Latest release
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/avac74/zmime)
+
 # 📦 Zig FileType Detector
 
 A  dependency‑free file type detection library written in Zig.
