@@ -122,7 +122,7 @@ Below is the current roadmap, including completed features and planned enhanceme
 |----|-----------------------------------------|
 | ✅ | Magic-number detection                  |
 | ✅ | Text vs binary heuristic                |
-| ❌ | File extension fallback                 |
+| ✅ | File extension fallback                 |
 | ❌ | Secondary lightweight analysis          |
 | ✅ | MIME type mapping                       |
 | ❌ | Encoding detection (UTF-8, UTF-16, etc) |

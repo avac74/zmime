@@ -2,6 +2,21 @@ const std = @import("std");
 
 const BUFFER_SIZE: usize = 4096;
 
+pub const DetectionSource = enum {
+    /// magic number match, extension irrelevant or absent
+    magic_only,
+    /// magic number match agrees with file extension
+    magic_and_extension_match,
+    /// magic number matched but conflicts with file extension
+    magic_and_extension_mismatch,
+    /// no magic number match, using extension only
+    extension_only,
+    /// text heuristic
+    content_text,
+    /// nothing matched / could not determine the file type
+    unknown,
+};
+
 pub const FileType = enum {
     text,
     image,
@@ -51,6 +66,13 @@ const Magic = struct {
 };
 
 pub const FileInfo = struct {
+    file_type: FileType,
+    mime: MimeType,
+    source: DetectionSource,
+};
+
+const ExtensionInfo = struct {
+    ext: []const u8,
     file_type: FileType,
     mime: MimeType,
 };
@@ -112,6 +134,29 @@ const magic_table = [_]Magic{
     .{ .signature = "\x00asm", .file_type = .binary, .mime = .application_wasm },
 };
 
+const extension_table = [_]ExtensionInfo{
+    .{ .ext = "txt", .file_type = .text, .mime = .text_plain },
+    .{ .ext = "png", .file_type = .image, .mime = .image_png },
+    .{ .ext = "jpg", .file_type = .image, .mime = .image_jpeg },
+    .{ .ext = "jpeg", .file_type = .image, .mime = .image_jpeg },
+    .{ .ext = "gif", .file_type = .image, .mime = .image_gif },
+    .{ .ext = "bmp", .file_type = .image, .mime = .image_bmp },
+    .{ .ext = "tiff", .file_type = .image, .mime = .image_tiff },
+    .{ .ext = "ico", .file_type = .image, .mime = .image_ico },
+
+    // ZIP refinement
+    .{ .ext = "zip", .file_type = .archive, .mime = .application_zip },
+    .{ .ext = "docx", .file_type = .document, .mime = .application_zip },
+    .{ .ext = "xlsx", .file_type = .document, .mime = .application_zip },
+    .{ .ext = "pptx", .file_type = .document, .mime = .application_zip },
+
+    .{ .ext = "pdf", .file_type = .document, .mime = .application_pdf },
+    .{ .ext = "sqlite", .file_type = .document, .mime = .application_sqlite },
+    .{ .ext = "epub", .file_type = .document, .mime = .application_epub },
+
+    .{ .ext = "wasm", .file_type = .binary, .mime = .application_wasm },
+};
+
 ///
 /// Return the `FileInfo` of a file named `path`
 ///
@@ -120,26 +165,82 @@ pub fn detectFileInfo(path: []const u8) !FileInfo {
     defer file.close();
 
     var buffer: [BUFFER_SIZE]u8 = undefined;
-
     const n = try file.read(&buffer);
 
-    if (detectMagic(buffer[0..n])) |m| {
+    const slice = buffer[0..n];
+
+    const ext = getExtension(path);
+    const ext_info = if (ext) |e| lookupExtension(e) else null;
+
+    // Magic number detection
+    if (detectMagic(slice)) |m| {
+        if (ext_info) |ei| {
+            const is_docx_refine =
+                (m.file_type == .archive and ei.file_type == .document);
+
+            const is_exact_match =
+                (ei.file_type == m.file_type and ei.mime == m.mime);
+
+            if (is_docx_refine or is_exact_match) {
+                return .{
+                    .file_type = if (is_docx_refine) ei.file_type else m.file_type,
+                    .mime = m.mime,
+                    .source = .magic_and_extension_match,
+                };
+            } else {
+                return .{
+                    .file_type = m.file_type,
+                    .mime = m.mime,
+                    .source = .magic_and_extension_mismatch,
+                };
+            }
+        }
+
         return .{
             .file_type = m.file_type,
             .mime = m.mime,
+            .source = .magic_only,
         };
     }
 
-    if (isText(buffer[0..n])) {
+    // Text heuristic (treat as a "magic" match)
+    if (isText(slice)) {
+        if (ext_info) |ei| {
+            if (ei.file_type == .text) {
+                return .{
+                    .file_type = .text,
+                    .mime = .text_plain,
+                    .source = .magic_and_extension_match,
+                };
+            } else {
+                return .{
+                    .file_type = .text,
+                    .mime = .text_plain,
+                    .source = .magic_and_extension_mismatch,
+                };
+            }
+        }
+
         return .{
             .file_type = .text,
             .mime = .text_plain,
+            .source = .magic_only,
+        };
+    }
+
+    // Extension fallback
+    if (ext_info) |ei| {
+        return .{
+            .file_type = ei.file_type,
+            .mime = ei.mime,
+            .source = .extension_only,
         };
     }
 
     return .{
-        .file_type = .binary,
+        .file_type = .unknown,
         .mime = .application_octet_stream,
+        .source = .unknown,
     };
 }
 
@@ -203,7 +304,36 @@ fn isText(buf: []const u8) bool {
     return true;
 }
 
+///
+/// Extract the extension of a file. Return the extension as a string or null if the
+/// file has no extension.
+///
+fn getExtension(path: []const u8) ?[]const u8 {
+    if (std.mem.lastIndexOfScalar(u8, path, '.')) |idx| {
+        return path[idx + 1 ..];
+    }
+
+    return null;
+}
+
+///
+/// Lookup an extension in the extension table
+///
+fn lookupExtension(ext: []const u8) ?ExtensionInfo {
+    inline for (extension_table) |e| {
+        if (std.ascii.eqlIgnoreCase(ext, e.ext)) {
+            return e;
+        }
+    }
+
+    return null;
+}
+
 // Unit tests
+
+// ------------------------------
+// detectMagic
+// ------------------------------
 
 test "detectMagic detects known signatures" {
     const buf = "\x89PNG\r\n\x1a\n";
@@ -217,6 +347,10 @@ test "detectMagic returns null for unknown signatures" {
     try std.testing.expectEqual(@as(?Magic, null), detectMagic(buf));
 }
 
+// ------------------------------
+// isText
+// ------------------------------
+
 test "isText detects ASCII text" {
     const buf = "Hello, world!";
     try std.testing.expect(isText(buf));
@@ -227,7 +361,45 @@ test "isText rejects binary data" {
     try std.testing.expect(!isText(&buf));
 }
 
-test "detectFileType detects PNG from in-memory file" {
+// ------------------------------
+// getExtension
+// ------------------------------
+
+test "getExtension extracts extension correctly" {
+    try std.testing.expectEqualStrings("png", getExtension("image.png").?);
+    try std.testing.expectEqualStrings("txt", getExtension("notes.txt").?);
+}
+
+test "getExtension returns null when no extension exists" {
+    try std.testing.expect(getExtension("Makefile") == null);
+    try std.testing.expect(getExtension("no_extension") == null);
+}
+
+// ------------------------------
+// lookupExtension
+// ------------------------------
+
+test "lookupExtension finds known extension" {
+    const ei = lookupExtension("png") orelse return error.TestExpectedExtension;
+    try std.testing.expectEqual(.image, ei.file_type);
+    try std.testing.expectEqual(.image_png, ei.mime);
+}
+
+test "lookupExtension is case-insensitive" {
+    const ei = lookupExtension("JpEg") orelse return error.TestExpectedExtension;
+    try std.testing.expectEqual(.image, ei.file_type);
+    try std.testing.expectEqual(.image_jpeg, ei.mime);
+}
+
+test "lookupExtension returns null for unknown extension" {
+    try std.testing.expect(lookupExtension("unknownext") == null);
+}
+
+// ------------------------------
+// detectFileInfo
+// ------------------------------
+
+test "detectFileInfo detects PNG from magic and matches extension" {
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
 
@@ -243,9 +415,10 @@ test "detectFileType detects PNG from in-memory file" {
 
     try std.testing.expectEqual(.image, info.file_type);
     try std.testing.expectEqual(.image_png, info.mime);
+    try std.testing.expectEqual(.magic_and_extension_match, info.source);
 }
 
-test "detectFileType detects text file" {
+test "detectFileInfo detects text file via content" {
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
 
@@ -261,4 +434,83 @@ test "detectFileType detects text file" {
 
     try std.testing.expectEqual(.text, info.file_type);
     try std.testing.expectEqual(.text_plain, info.mime);
+    try std.testing.expectEqual(.magic_and_extension_match, info.source);
+}
+
+test "detectFileInfo falls back to extension when magic is unknown" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("file.pdf", .{});
+    defer f.close();
+
+    try f.writeAll("NOT A REAL PDF");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "file.pdf");
+    defer std.testing.allocator.free(full_path);
+
+    const info = try detectFileInfo(full_path);
+
+    try std.testing.expectEqual(.text, info.file_type);
+    try std.testing.expectEqual(.text_plain, info.mime);
+    try std.testing.expectEqual(.magic_and_extension_mismatch, info.source);
+}
+
+test "detectFileInfo refines ZIP magic using DOCX extension" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("report.docx", .{});
+    defer f.close();
+
+    try f.writeAll("PK\x03\x04");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "report.docx");
+    defer std.testing.allocator.free(full_path);
+
+    const info = try detectFileInfo(full_path);
+
+    try std.testing.expectEqual(.document, info.file_type);
+    try std.testing.expectEqual(.application_zip, info.mime);
+    try std.testing.expectEqual(.magic_and_extension_match, info.source);
+}
+
+test "detectFileInfo detects mismatch between magic and extension" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("wrong.png", .{});
+    defer f.close();
+
+    // Write JPEG magic but extension is .png
+    try f.writeAll("\xff\xd8\xff");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "wrong.png");
+    defer std.testing.allocator.free(full_path);
+
+    const info = try detectFileInfo(full_path);
+
+    try std.testing.expectEqual(.image, info.file_type);
+    try std.testing.expectEqual(.image_jpeg, info.mime);
+    try std.testing.expectEqual(.magic_and_extension_mismatch, info.source);
+}
+
+test "detectFileInfo returns unknown when nothing matches" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("mystery.bin", .{});
+    defer f.close();
+
+    const buf = [_]u8{ 0, 1, 2, 3 };
+    try f.writeAll(&buf);
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "mystery.bin");
+    defer std.testing.allocator.free(full_path);
+
+    const info = try detectFileInfo(full_path);
+
+    try std.testing.expectEqual(.unknown, info.file_type);
+    try std.testing.expectEqual(.application_octet_stream, info.mime);
+    try std.testing.expectEqual(.unknown, info.source);
 }
