@@ -108,6 +108,8 @@ const zmime = b.dependency("zmime", .{}).module("zmime");
 exe.addModule("zmime", zmime);
 ```
 
+You can also check the [example](https://github.com/avac74/zmime/blob/master/src/main.zig) which is a very simple CLI using the library.
+
 ## Use it in your code
 
 ```zig
