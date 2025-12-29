@@ -108,6 +108,8 @@ pub fn detectFileInfo(path: []const u8) !FileInfo {
 /// Return `true` if `buf` contains text-only data
 ///
 fn isText(buf: []const u8) bool {
+    if (buf.len == 0) return false;
+
     for (buf) |b| {
         if (b == 0) return false;
         if (b < 0x09) return false;
@@ -115,6 +117,19 @@ fn isText(buf: []const u8) bool {
     }
 
     return true;
+}
+
+///
+/// Return `true` if `path` points to a text-only file
+///
+pub fn isTextFile(path: []const u8) !bool {
+    var file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
+
+    var buffer: [4096]u8 = undefined;
+    const n = try file.read(&buffer);
+
+    return isText(buffer[0..n]);
 }
 
 // Unit tests
@@ -131,6 +146,53 @@ test "isText detects ASCII text" {
 test "isText rejects binary data" {
     const buf = [_]u8{ 0, 1, 2, 3 };
     try std.testing.expect(!isText(&buf));
+}
+
+// ------------------------------
+// isTextFile
+// ------------------------------
+
+test "isTextFile detects ASCII text" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("test.txt", .{});
+    defer f.close();
+
+    try f.writeAll("Hello, world!");
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "test.txt");
+    defer std.testing.allocator.free(full_path);
+
+    try std.testing.expect(try isTextFile(full_path));
+}
+
+test "isTextFile rejects binary data" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("test.txt", .{});
+    defer f.close();
+
+    try f.writeAll(&[_]u8{ 0, 1, 2, 3 });
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "test.txt");
+    defer std.testing.allocator.free(full_path);
+
+    try std.testing.expect(!(try isTextFile(full_path)));
+}
+
+test "isTextFile rejects empty file" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const f = try tmp.dir.createFile("test.txt", .{});
+    defer f.close();
+
+    const full_path = try tmp.dir.realpathAlloc(std.testing.allocator, "test.txt");
+    defer std.testing.allocator.free(full_path);
+
+    try std.testing.expect(!(try isTextFile(full_path)));
 }
 
 // ------------------------------
