@@ -5,10 +5,13 @@ pub const FileType = @import("file_type.zig").FileType;
 pub const MimeType = @import("mime.zig").MimeType;
 const Magic = @import("magic.zig").Magic;
 const ExtensionInfo = @import("extension.zig").ExtensionInfo;
+const TextEncoding = @import("encoding.zig").TextEncoding;
 
 pub const mimeToString = @import("mime.zig").mimeToString;
+pub const textEncodingToString = @import("encoding.zig").textEncodingToString;
 const lookupExtension = @import("extension.zig").lookupExtension;
 const detectMagic = @import("magic.zig").detectMagic;
+const detectEncoding = @import("encoding.zig").detectEncoding;
 
 const BUFFER_SIZE: usize = 4096;
 
@@ -16,6 +19,7 @@ pub const FileInfo = struct {
     file_type: FileType,
     mime: MimeType,
     source: DetectionSource,
+    encoding: ?TextEncoding = null, // we only set this for text files, leave it as null otherwise
 };
 
 ///
@@ -65,18 +69,22 @@ pub fn detectFileInfo(path: []const u8) !FileInfo {
 
     // Text heuristic (treat as a "magic" match)
     if (isText(slice)) {
+        const enc = detectEncoding(slice);
+
         if (ext_info) |ei| {
             if (ei.file_type == .text) {
                 return .{
                     .file_type = .text,
                     .mime = .text_plain,
                     .source = .magic_and_extension_match,
+                    .encoding = enc,
                 };
             } else {
                 return .{
                     .file_type = .text,
                     .mime = .text_plain,
                     .source = .magic_and_extension_mismatch,
+                    .encoding = enc,
                 };
             }
         }
@@ -85,6 +93,7 @@ pub fn detectFileInfo(path: []const u8) !FileInfo {
             .file_type = .text,
             .mime = .text_plain,
             .source = .magic_only,
+            .encoding = enc,
         };
     }
 

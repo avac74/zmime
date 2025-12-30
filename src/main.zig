@@ -23,6 +23,10 @@ pub fn main() !void {
         zmime.mimeToString(info.mime),
     });
 
+    if (info.encoding) |encoding| {
+        std.log.info("Text file encoding: {s}", .{zmime.textEncodingToString(encoding)});
+    }
+
     // you can also just check if a file is (likely) text or binary
     const is_test = try zmime.isTextFile(file_name);
     if (is_test) {

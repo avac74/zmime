@@ -1,5 +1,8 @@
 const std = @import("std");
 
+///
+/// Return true if `path` exists, false otherwise
+///
 fn dirExists(path: []const u8) bool {
     var cwd = std.fs.cwd();
     cwd.access(path, .{}) catch return false;
@@ -70,6 +73,7 @@ pub fn build(b: *std.Build) void {
 
     const check = b.step("check", "Check if zmime compiles");
 
+    // We just want to run this step in Linux
     if (target.result.os.tag == .linux) {
         var arena = std.heap.ArenaAllocator.init(b.allocator);
         const alloc = arena.allocator();
@@ -82,6 +86,7 @@ pub fn build(b: *std.Build) void {
         if (!is_ci and dirExists(local_tests)) {
             test_dir = local_tests;
         } else {
+            // if we are running the CI pipeline, we want to make sure to get the latest version of the tests
             const fetch = b.addSystemCommand(&[_][]const u8{ "sh", "-c", "mkdir -p .cache/file-tests && curl -L https://github.com/file/file/archive/refs/heads/master.tar.gz | tar xz -C .cache/file-tests --strip-components=2 file-master/tests/" });
             test_dir = ".cache/file-tests";
             check.dependOn(&fetch.step);
