@@ -22,4 +22,12 @@ pub fn main() !void {
         @tagName(info.file_type),
         zmime.mimeToString(info.mime),
     });
+
+    // you can also just check if a file is (likely) text or binary
+    const is_test = try zmime.isTextFile(file_name);
+    if (is_test) {
+        std.log.info("File {s} is a text file", .{file_name});
+    } else {
+        std.log.info("File {s} is a binary file", .{file_name});
+    }
 }

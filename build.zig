@@ -81,7 +81,6 @@ pub fn build(b: *std.Build) void {
 
         if (!is_ci and dirExists(local_tests)) {
             test_dir = local_tests;
-            std.log.info("Not running CI and found tests in {s}", .{test_dir});
         } else {
             const fetch = b.addSystemCommand(&[_][]const u8{ "sh", "-c", "mkdir -p .cache/file-tests && curl -L https://github.com/file/file/archive/refs/heads/master.tar.gz | tar xz -C .cache/file-tests --strip-components=2 file-master/tests/" });
             test_dir = ".cache/file-tests";

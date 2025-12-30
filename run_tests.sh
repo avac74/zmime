@@ -18,7 +18,7 @@ for testfile in "$TESTDIR"/*.testfile; do
     file_mime=$(printf "%s" "$file_output" | sed -E 's/.*: *([^;]+).*/\1/') 
 
     zmime_output=$("$ZIGCLI" "$testfile" 2>&1)
-    zmime_mime=$(printf "%s" "$zmime_output" | sed -E 's/.*MIME: *([^ ]+).*/\1/')
+    zmime_mime=$(printf "%s" "$zmime_output" | head -n 1 | sed -E 's/.*MIME: *([^ ]+).*/\1/')
 
     if [ "$file_mime" = "$zmime_mime" ]; then 
         printf "✔ %s — OK (%s)\n" "$base" "$file_mime" 
