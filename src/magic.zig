@@ -28,6 +28,7 @@ pub const magic_table = [_]Magic{
     .{ .signature = "\x1F\x8B", .file_type = .archive, .mime = .application_gzip },
     .{ .signature = "BZh", .file_type = .archive, .mime = .application_bzip2 },
     .{ .signature = "ustar", .offset = 257, .file_type = .archive, .mime = .application_tar },
+    .{ .signature = "\x28\xB5\x2F\xFD", .file_type = .archive, .mime = .application_zstd },
 
     // --- Documents ---
     .{ .signature = "%PDF-", .file_type = .document, .mime = .application_pdf },
@@ -51,6 +52,8 @@ pub const magic_table = [_]Magic{
     .{ .signature = "OggS", .file_type = .audio, .mime = .audio_ogg },
     .{ .signature = "\xFF\xF1", .file_type = .audio, .mime = .audio_aac },
     .{ .signature = "\xFF\xF9", .file_type = .audio, .mime = .audio_aac },
+    .{ .signature = "#!AMR\n", .file_type = .audio, .mime = .audio_amr },
+    .{ .signature = "#!AMR_MC1.0\n", .file_type = .audio, .mime = .audio_amr },
 
     // --- Video ---
     .{ .signature = "\x00\x00\x00\x18ftypmp42", .file_type = .video, .mime = .video_mp4 },
