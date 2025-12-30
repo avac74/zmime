@@ -1,7 +1,7 @@
 # 🛠️ Build Status
 
 | OS      | Status                                                                                  |
-|---------|-----------------------------------------------------------------------------------------|
+| ------- | --------------------------------------------------------------------------------------- |
 | Linux   | ![Linux](https://github.com/avac74/zmime/actions/workflows/ci-linux.yaml/badge.svg)     |
 | macOS   | ![macOS](https://github.com/avac74/zmime/actions/workflows/ci-mac.yaml/badge.svg)       |
 | Windows | ![Windows](https://github.com/avac74/zmime/actions/workflows/ci-windows.yaml/badge.svg) |
@@ -15,9 +15,11 @@ This library is currently alpha‑quality. The API may evolve, internal structur
 
 If you’re interested in extending the magic table, improving the detection logic, refining the API, or helping clean up the codebase, contributions are very welcome. Suggestions, issues, and pull requests that help improve correctness, clarity, or idiomatic Zig usage are especially appreciated.
 
+The goal of this project is to provide a dependency-free library that identifies files using heuristics similar to the `file` command but this is far from being a reality right now.
+
 # 📦 Zig FileType Detector
 
-A  dependency‑free file type detection library written in Zig.
+A dependency‑free file type detection library written in Zig.
 It identifies files using magic numbers, lightweight heuristics, and content‑based analysis, not just extensions.
 
 This project includes:
@@ -129,14 +131,14 @@ pub fn main() !void {
 This project aims to provide a fast, reliable, and extensible file‑type detection system built entirely in Zig.
 Below is the current roadmap, including completed features and planned enhancements.
 
-|    |                                         |
-|----|-----------------------------------------|
-| ✅ | Magic-number detection                  |
-| ✅ | Text vs binary heuristic                |
-| ✅ | File extension fallback                 |
-| ❌ | Secondary lightweight analysis          |
-| ✅ | MIME type mapping                       |
-| ❌ | Encoding detection (UTF-8, UTF-16, etc) |
-| ❌ | Source code detection                   |
-| ❌ | Benchmark suite                         |
-| ❌ | Fuzz testing                            |
+|     |                                         |
+| --- | --------------------------------------- |
+| ✅   | Magic-number detection                  |
+| ✅   | Text vs binary heuristic                |
+| ✅   | File extension fallback                 |
+| ❌   | Secondary lightweight analysis          |
+| ✅   | MIME type mapping                       |
+| ❌   | Encoding detection (UTF-8, UTF-16, etc) |
+| ❌   | Source code detection                   |
+| ❌   | Benchmark suite                         |
+| ❌   | Fuzz testing                            |

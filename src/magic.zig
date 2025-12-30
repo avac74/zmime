@@ -31,6 +31,7 @@ pub const magic_table = [_]Magic{
 
     // --- Documents ---
     .{ .signature = "%PDF-", .file_type = .document, .mime = .application_pdf },
+    // docx, xlsx, pptx are zip files under the hood, we refine later in the code
     .{ .signature = "PK\x03\x04", .file_type = .document, .mime = .application_zip },
     .{ .signature = "SQLite format 3\x00", .file_type = .document, .mime = .application_sqlite },
     .{ .signature = "EPUB", .offset = 30, .file_type = .document, .mime = .application_epub },
@@ -57,10 +58,11 @@ pub const magic_table = [_]Magic{
     .{ .signature = "ftypqt", .offset = 4, .file_type = .video, .mime = .video_mov },
 
     // --- Fonts ---
-    .{ .signature = "\x00\x01\x00\x00", .file_type = .font, .mime = .application_octet_stream },
-    .{ .signature = "OTTO", .file_type = .font, .mime = .application_octet_stream },
-    .{ .signature = "wOFF", .file_type = .font, .mime = .application_octet_stream },
-    .{ .signature = "wOF2", .file_type = .font, .mime = .application_octet_stream },
+    .{ .signature = "\x00\x01\x00\x00", .file_type = .font, .mime = .font_ttf },
+    // possible improvements/issues, see https://www.iana.org/assignments/media-types/font/sfnt
+    .{ .signature = "OTTO", .file_type = .font, .mime = .font_otf },
+    .{ .signature = "wOFF", .file_type = .font, .mime = .font_woff },
+    .{ .signature = "wOF2", .file_type = .font, .mime = .font_woff2 },
 
     // --- Misc ---
     .{ .signature = "\x00asm", .file_type = .binary, .mime = .application_wasm },
