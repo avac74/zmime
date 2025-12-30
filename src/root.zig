@@ -9,6 +9,7 @@ const TextEncoding = @import("encoding.zig").TextEncoding;
 
 pub const mimeToString = @import("mime.zig").mimeToString;
 pub const textEncodingToString = @import("encoding.zig").textEncodingToString;
+pub const getFileEncoding = @import("encoding.zig").getFileEncoding;
 const lookupExtension = @import("extension.zig").lookupExtension;
 const detectMagic = @import("magic.zig").detectMagic;
 const detectEncoding = @import("encoding.zig").detectEncoding;

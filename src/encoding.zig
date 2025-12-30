@@ -62,6 +62,16 @@ pub fn detectEncoding(buf: []const u8) TextEncoding {
     return .unknown;
 }
 
+pub fn getFileEncoding(path: []const u8) !TextEncoding {
+    var file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
+
+    var buffer: [4096]u8 = undefined;
+    const n = try file.read(&buffer);
+
+    return detectEncoding(buffer[0..n]);
+}
+
 pub fn textEncodingToString(e: TextEncoding) []const u8 {
     return switch (e) {
         .ascii => "ASCII",
