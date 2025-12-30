@@ -15,7 +15,7 @@ This library is currently alpha‑quality. The API may evolve, internal structur
 
 If you’re interested in extending the magic table, improving the detection logic, refining the API, or helping clean up the codebase, contributions are very welcome. Suggestions, issues, and pull requests that help improve correctness, clarity, or idiomatic Zig usage are especially appreciated.
 
-The goal of this project is to provide a dependency-free library that identifies files using heuristics similar to the `file` command but this is far from being a reality right now.
+The goal of this project is to provide a dependency-free library that identifies files using heuristics similar to the `file` command but this is far from being a reality right now (currently, 42 out of 85 tests from the `file` repository fail to produce the same mime results as the ones produce by `file` itself).
 
 # 📦 Zig FileType Detector
 
