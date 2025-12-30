@@ -2,3 +2,4 @@
 zig-out/
 *.~undo-tree~
 **/#*#
+benchmarks/

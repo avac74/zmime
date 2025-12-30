@@ -1,12 +1,12 @@
 pub const FileType = enum {
-    text,
-    image,
-    audio,
-    video,
     archive,
+    audio,
+    binary,
     document,
     executable,
     font,
-    binary,
+    image,
+    text,
     unknown,
+    video,
 };
